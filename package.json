@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "async": "^1.4.0",
-    "iron-tree": "^0.0.2",
+    "iron-tree": "*",
     "lodash": "^3.10.0"
   },
   "engines": {
