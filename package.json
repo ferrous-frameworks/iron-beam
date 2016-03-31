@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/event-emitter/iron-beam.js",
   "scripts": {
-    "test": "grunt mochaTest:all"
+    "test": "grunt"
   },
   "repository": {
     "type": "git",
