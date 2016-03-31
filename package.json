@@ -1,6 +1,6 @@
 {
   "name": "iron-beam",
-  "version": "0.0.2",
+  "version": "0.0.5",
   "description": "",
   "main": "dist/event-emitter/iron-beam.js",
   "scripts": {
@@ -11,7 +11,7 @@
     "url": "https://github.com/ferrous-frameworks/iron-beam.git"
   },
   "author": "Tyson Hester",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/ferrous-frameworks/iron-beam/issues"
   },
@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "async": "^1.4.0",
-    "iron-tree": "^0.0.2",
+    "iron-tree": "*",
     "lodash": "^3.10.0"
   },
   "engines": {

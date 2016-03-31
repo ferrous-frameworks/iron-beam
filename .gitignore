@@ -1,11 +1,14 @@
 
 npm-debug.log
+
 iron-beam.iws
-.DS_Store
 
 node_modules/
 .idea/
+.c9
+.DS_Store
 
 src/**/*.js
 src/**/*.js.map
 
+typings/

@@ -3,16 +3,7 @@ var path = require('path');
 
 var _ = require('lodash');
 
-var tsConfigInit = require('./utils/tsc/tsConfigInit');
-
 module.exports = function(grunt) {
-
-    grunt.config.init(require('./grunt-config.json'));
-
-    var moduleName = grunt.config('module-name');
-    if (_.isUndefined(moduleName)) {
-        throw new Error('module-name config setting is required. check grunt-config.json');
-    }
     var pathToNode = grunt.option('path-to-node');
     if (_.isUndefined(pathToNode)) {
         pathToNode = path.join(process.execPath, '/../../');
@@ -20,9 +11,6 @@ module.exports = function(grunt) {
 
     var tsBin = path.join(pathToNode, 'lib/node_modules/typescript/bin');
     var nodeBin = path.join(pathToNode, 'bin');
-    var projectRoot = __dirname;
-
-
 
     grunt.loadNpmTasks('grunt-mocha-test');
     grunt.loadNpmTasks('grunt-shell');
@@ -30,6 +18,7 @@ module.exports = function(grunt) {
 
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-clean');
+    
     
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -40,23 +29,8 @@ module.exports = function(grunt) {
 
 
         shell: {
-            module: {
-                command: [
-                    'rm -rf ' + path.join(projectRoot, 'node_modules', moduleName),
-                    '<%= nodeBin %>/npm install'
-                ].join('&&')
-            },
-            
-            tsd: {
-                command: [
-                    'mkdir -p src'
-                    ,'cd src'
-                    ,'mkdir -p typings'
-                    ,'cd typings'
-                    ,'mkdir -p tsd'
-                    ,'cd ' + projectRoot
-                    ,'<%= nodeBin %>/tsd reinstall -s'
-                ].join('&&')
+            typings: {
+                command: 'typings install'
             },
 
             tsc: {
@@ -121,12 +95,9 @@ module.exports = function(grunt) {
         copy: {
             dist: {
                 files: [{
-                    options: {
-                        noProcess: 'src/**/*.test.js'
-                    },
                     expand: true,
                     cwd: 'src/',
-                    src: ['**/*.js', '*.d.ts'],
+                    src: ['**/*.js', '*.d.ts', '!**/*.test.js'],
                     dest: 'dist/'
                 }]
             }
@@ -150,38 +121,8 @@ module.exports = function(grunt) {
     });
 
 
-    grunt.registerTask('tsconfig', 'initialize tsconfig.json with the current project files', function () {
-        var done = this.async();
-        tsConfigInit({
-            dirsToCompile: [
-                'src',
-                'interfaces',
-                'tests',
-                'typings'
-            ],
-            pathToTsConfig: './tsconfig.json'
-        }, function (e, results) {
-            if (_.isUndefined(e)) {
-                grunt.log.subhead('tsconfig.json init results ---');
-                _.each(results.tsFiles, function (tsf) {
-                    grunt.log.ok("included " + tsf);
-                });
-                _.each(results.ignored, function (ignored) {
-                    grunt.log.ok("ignored directory " + ignored);
-                });
-                grunt.log.ok();
-                done();
-                return;
-            }
-            done(e);
-        });
-    });
-
-
     grunt.registerTask('prep', [
-        'shell:module',
-        'shell:tsd',
-        'tsconfig'
+        'shell:typings'
     ]);
 
     grunt.registerTask('build', [
