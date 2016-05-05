@@ -1,11 +1,14 @@
 {
   "name": "iron-beam",
-  "version": false,
+  "version": "0.0.14",
+  "main": "dist/iron-beam.d.ts",
+  "homepage": "https://github.com/ferrous-frameworks/iron-beam",
   "ambientDependencies": {
-    "mocha": "github:DefinitelyTyped/DefinitelyTyped/mocha/mocha.d.ts#9e42013818dbb33142146afd739bdf70b87c37f9",
-    "chai": "github:DefinitelyTyped/DefinitelyTyped/chai/chai.d.ts#9e42013818dbb33142146afd739bdf70b87c37f9",
     "async": "github:DefinitelyTyped/DefinitelyTyped/async/async.d.ts#855569dbc86b619aa3bbfab98f3ff2e6b55b5fcd",
+    "chai": "github:DefinitelyTyped/DefinitelyTyped/chai/chai.d.ts#9e42013818dbb33142146afd739bdf70b87c37f9",
     "lodash": "github:DefinitelyTyped/DefinitelyTyped/lodash/lodash.d.ts#855569dbc86b619aa3bbfab98f3ff2e6b55b5fcd",
-    "node": "github:DefinitelyTyped/DefinitelyTyped/node/node.d.ts#3b0f362204ea965952dafdb682a5274d527ef9d0"
+    "mocha": "github:DefinitelyTyped/DefinitelyTyped/mocha/mocha.d.ts#9e42013818dbb33142146afd739bdf70b87c37f9",
+    "node": "github:DefinitelyTyped/DefinitelyTyped/node/node.d.ts#3b0f362204ea965952dafdb682a5274d527ef9d0",
+    "iron-tree": "github:ferrous-frameworks/iron-tree/dist/iron-tree.d.ts#4e77de30b8dc371d426172b20c081666234073da"
   }
 }
