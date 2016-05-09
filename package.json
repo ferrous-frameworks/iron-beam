@@ -3,6 +3,7 @@
   "version": "0.0.14",
   "description": "",
   "main": "dist/event-emitter/iron-beam.js",
+  "typings": "dist/iron-beam.d.ts",
   "scripts": {
     "test": "grunt"
   },
@@ -29,7 +30,7 @@
   },
   "dependencies": {
     "async": "^1.4.0",
-    "iron-tree": "*",
+    "iron-tree": "^0.0.x",
     "lodash": "^3.10.0"
   },
   "engines": {
