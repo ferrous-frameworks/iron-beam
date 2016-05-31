@@ -160,7 +160,7 @@ export class EventEmitter implements IEventEmitter {
         var intercepts = this.interceptorTree.get(eventName);
         var emitAnno = _.cloneDeep(this.annotation);
         this.annotation = {};
-        var interceptorAnno = _.merge.apply(_, _.cloneDeep(_.pluck(listeners, 'annotation')).concat([ emitAnno ]));
+        var interceptorAnno = _.merge.apply(_, _.cloneDeep((<any>_).pluck(listeners, 'annotation')).concat([ emitAnno ]));
         _.each(listeners, (listener) => {
             if (listener.onlyOnce) {
                 this.removeListener(eventName, listener.method);
@@ -321,7 +321,7 @@ export class EventEmitter implements IEventEmitter {
     
     public listeners(eventName: string): Function[] {
         var listeners = this.listenerTree.get(eventName);
-        return _.pluck(listeners, 'method');
+        return (<any>_).pluck(listeners, 'method');
     }
 
     public hasListener(eventName: string): boolean {
