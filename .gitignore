@@ -1,7 +1,7 @@
 
 npm-debug.log
 
-iron-beam.iws
+iron-tree.iws
 
 node_modules/
 .idea/
@@ -12,3 +12,4 @@ src/**/*.js
 src/**/*.js.map
 
 typings/
+!dist/typings/
