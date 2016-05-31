@@ -14,8 +14,10 @@ declare module '~iron-tree/dist/iron-tree' {
   }
 }
 declare module 'iron-tree/dist/iron-tree' {
-export * from '~iron-tree/dist/iron-tree';
+import alias = require('~iron-tree/dist/iron-tree');
+export = alias;
 }
 declare module 'iron-tree' {
-export * from '~iron-tree/dist/iron-tree';
+import alias = require('~iron-tree/dist/iron-tree');
+export = alias;
 }
