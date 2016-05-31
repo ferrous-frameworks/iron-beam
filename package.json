@@ -1,6 +1,6 @@
 {
   "name": "iron-beam",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "description": "",
   "main": "dist/event-emitter/iron-beam.js",
   "typings": "dist/iron-beam.d.ts",

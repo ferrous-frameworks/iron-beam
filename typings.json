@@ -1,6 +1,6 @@
 {
   "name": "iron-beam",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "main": "dist/iron-beam.d.ts",
   "homepage": "https://github.com/ferrous-frameworks/iron-beam",
   "devDependencies": {
