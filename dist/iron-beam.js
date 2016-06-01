@@ -1,3 +1,4 @@
+"use strict";
 var _ = require('lodash');
 var async = require('async');
 var IronTree = require('iron-tree');
@@ -271,6 +272,6 @@ var EventEmitter = (function () {
         return emitter.listeners(eventName).length;
     };
     return EventEmitter;
-})();
+}());
 exports.EventEmitter = EventEmitter;
 //# sourceMappingURL=iron-beam.js.map

@@ -3,7 +3,6 @@
   "version": "0.0.27",
   "description": "",
   "main": "dist/iron-beam.js",
-  "typings": "dist/iron-beam.d.ts",
   "scripts": {
     "test": "grunt"
   },
