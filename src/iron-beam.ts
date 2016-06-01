@@ -1,4 +1,3 @@
-//<reference path='../typings/master.d.ts' />
 
 import _ = require('lodash');
 import async = require('async');
@@ -79,9 +78,9 @@ export class EventEmitter implements IEventEmitter {
 
     private listenerTree: IronTree.Tree<IListener>;
     private interceptorTree: IronTree.Tree<IIntercept>;
-    
+
     public defaultMaxListeners: number;
-    
+
     constructor(opts?: IIronBeamOptions) {
         var defs = {
             defaultMaxListeners: 10,
@@ -102,7 +101,7 @@ export class EventEmitter implements IEventEmitter {
         this.listenerTree = new IronTree.Tree<IListener>();
         this.interceptorTree = new IronTree.Tree<IIntercept>();
     }
-    
+
     public setMaxListeners(max: number): EventEmitter {
         this.maxListeners = max;
         return this;
@@ -112,7 +111,7 @@ export class EventEmitter implements IEventEmitter {
         this.annotation = _.cloneDeep(anno);
         return this;
     }
-    
+
     public on(eventName: string, method: Function): EventEmitter {
         this.addNewListener({
             event: eventName,
@@ -125,7 +124,7 @@ export class EventEmitter implements IEventEmitter {
     public addListener(eventName: string, method: Function): EventEmitter {
         return this.on(eventName, method);
     }
-    
+
     public once(eventName: string, method: Function): EventEmitter {
         this.addNewListener({
             event: eventName,
@@ -151,7 +150,7 @@ export class EventEmitter implements IEventEmitter {
         this.emit('newListener', listener.event, method, listener);
         return this;
     }
-    
+
     public emit(eventName: string, ...args: any[]): boolean {
         var listeners = this.listenerTree.get(eventName);
         if (listeners.length === 0 && eventName === 'error') {
@@ -318,7 +317,7 @@ export class EventEmitter implements IEventEmitter {
         });
         return this;
     }
-    
+
     public listeners(eventName: string): Function[] {
         var listeners = this.listenerTree.get(eventName);
         return (<any>_).pluck(listeners, 'method');

@@ -1,4 +1,3 @@
-//<reference path='../typings/master.d.ts' />
 "use strict";
 var _ = require('lodash');
 var async = require('async');

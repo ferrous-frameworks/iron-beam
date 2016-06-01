@@ -10,6 +10,3 @@ node_modules/
 
 src/**/*.js
 src/**/*.js.map
-
-typings/
-!dist/typings/
