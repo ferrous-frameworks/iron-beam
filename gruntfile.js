@@ -112,7 +112,7 @@ module.exports = function(grunt) {
                     patterns: [
                         {
                             match: /\.\.\/\.\.\/node_modules/,
-                            replacement: "../../../node_modules"
+                            replacement: "../../.."
                         }
                     ]
                 },
