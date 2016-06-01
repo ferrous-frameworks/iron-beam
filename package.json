@@ -1,6 +1,6 @@
 {
   "name": "iron-beam",
-  "version": "0.0.27",
+  "version": "0.0.28",
   "description": "",
   "main": "dist/iron-beam.js",
   "scripts": {
