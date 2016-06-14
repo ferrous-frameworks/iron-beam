@@ -180,6 +180,14 @@ describe('iron-beam', () => {
         ib.emit('1#2#3#4#5#6#7#8#9');
     });
 
+    it("should work with a single wildcard event name", (done) => {
+        var ib = new IronBeam.EventEmitter();
+        ib.on('*', () => {
+            done();
+        });
+        ib.emit('x');
+    });
+
     it("should work with wildcard event names", (done) => {
         var ib = new IronBeam.EventEmitter();
         ib.on('1.*.3.*.5.*.7.*.9', () => {

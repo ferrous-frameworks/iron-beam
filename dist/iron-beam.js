@@ -70,13 +70,16 @@ var EventEmitter = (function () {
         for (var _i = 1; _i < arguments.length; _i++) {
             args[_i - 1] = arguments[_i];
         }
-        var listeners = this.listenerTree.get(eventName);
-        if (listeners.length === 0 && eventName === 'error') {
+        var allListeners = this.listenerTree.get(eventName);
+        if (allListeners.length === 0 && eventName === 'error') {
             throw new Error('Uncaught, unspecified "error" event.');
         }
         var intercepts = this.interceptorTree.get(eventName);
         var emitAnno = _.cloneDeep(this.annotation);
         this.annotation = {};
+        var listeners = _.filter(allListeners, function (listener) {
+            return listener.event !== _this.wildcard || eventName !== 'newListener';
+        });
         var interceptorAnno = _.merge.apply(_, _.cloneDeep(_.pluck(listeners, 'annotation')).concat([emitAnno]));
         _.each(listeners, function (listener) {
             if (listener.onlyOnce) {

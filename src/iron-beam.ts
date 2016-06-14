@@ -152,13 +152,16 @@ export class EventEmitter implements IEventEmitter {
     }
 
     public emit(eventName: string, ...args: any[]): boolean {
-        var listeners = this.listenerTree.get(eventName);
-        if (listeners.length === 0 && eventName === 'error') {
+        var allListeners = this.listenerTree.get(eventName);
+        if (allListeners.length === 0 && eventName === 'error') {
             throw new Error('Uncaught, unspecified "error" event.');
         }
         var intercepts = this.interceptorTree.get(eventName);
         var emitAnno = _.cloneDeep(this.annotation);
         this.annotation = {};
+        var listeners = _.filter(allListeners, (listener) => {
+            return listener.event !== this.wildcard || eventName !== 'newListener'
+        });
         var interceptorAnno = _.merge.apply(_, _.cloneDeep((<any>_).pluck(listeners, 'annotation')).concat([ emitAnno ]));
         _.each(listeners, (listener) => {
             if (listener.onlyOnce) {
