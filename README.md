@@ -1,7 +1,7 @@
 # iron-beam
 [![travis build](https://travis-ci.org/ferrous-frameworks/iron-beam.svg?branch=master)](https://travis-ci.org/ferrous-frameworks/iron-beam)
 
-iron-beam is a interchangeable replacement for the 4.2.2 version of nodejs `events.EventEmitter` with wildcards, annotations and interception.
+iron-beam is a interchangeable replacement for `events.EventEmitter` with wildcards, annotations and interception.
 
 [Documentation](http://) *(coming soon)*
 
