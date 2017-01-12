@@ -11,7 +11,7 @@ iron-beam is a interchangeable replacement for `events.EventEmitter` with wildca
 
 ## Usage
 
-all the methods availble from node.js `events.EventEmitter` are documented [here](https://nodejs.org/dist/latest-v4.x/docs/api/events.html#events_class_eventemitter).
+all the methods available from node.js `events.EventEmitter` are documented [here](https://nodejs.org/dist/latest-v4.x/docs/api/events.html#events_class_eventemitter).
 
 #### wildcard listeners
 ```js
