@@ -17,8 +17,9 @@ all the methods available from node.js `events.EventEmitter` are documented [her
 ```js
 var ib = new IronBeam.EventEmitter();
 
-ib.on('a.*', () => {
+ib.on('a.*', (anno) => {
     // some work
+    // anno.eventMeta.name == 'a.b'
 });
 
 ib.emit('a.b');
