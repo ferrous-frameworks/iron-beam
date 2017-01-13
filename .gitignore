@@ -3,7 +3,7 @@ npm-debug.log
 
 iron-tree.iws
 
-node_modules/
+node_modules
 .idea/
 .c9
 .DS_Store
