@@ -3,7 +3,7 @@
 
 iron-beam is a interchangeable replacement for `events.EventEmitter` with wildcards, annotations and interception of event lifecycles.
 
-[Documentation](http://) *(coming soon)*
+[Documentation](http://ferrous-frameworks.github.io/iron-beam/)
 
 ## Installation
 
