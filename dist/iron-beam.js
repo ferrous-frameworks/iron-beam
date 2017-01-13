@@ -1,7 +1,7 @@
 "use strict";
-var _ = require('lodash');
-var async = require('async');
-var IronTree = require('iron-tree');
+var _ = require("lodash");
+var async = require("async");
+var IronTree = require("iron-tree");
 var EventEmitter = (function () {
     function EventEmitter(opts) {
         var defs = {
@@ -18,8 +18,14 @@ var EventEmitter = (function () {
         this.wildcard = opts.wildcard;
         this.delimiter = opts.delimiter;
         this.annotation = {};
-        this.listenerTree = new IronTree.Tree();
-        this.interceptorTree = new IronTree.Tree();
+        this.listenerTree = new IronTree.Tree({
+            delimiter: this.delimiter,
+            wildcard: this.wildcard
+        });
+        this.interceptorTree = new IronTree.Tree({
+            delimiter: this.delimiter,
+            wildcard: this.wildcard
+        });
     }
     EventEmitter.prototype.setMaxListeners = function (max) {
         this.maxListeners = max;
@@ -80,7 +86,13 @@ var EventEmitter = (function () {
         var listeners = _.filter(allListeners, function (listener) {
             return listener.event !== _this.wildcard || eventName !== 'newListener';
         });
-        var interceptorAnno = _.merge.apply(_, _.cloneDeep(_.pluck(listeners, 'annotation')).concat([emitAnno]));
+        var eventMeta = {
+            eventMeta: {
+                name: eventName,
+                sections: eventName.split(this.delimiter)
+            }
+        };
+        var interceptorAnno = _.merge.apply(_, _.cloneDeep(_.pluck(listeners, 'annotation')).concat([emitAnno]).concat([eventMeta]));
         _.each(listeners, function (listener) {
             if (listener.onlyOnce) {
                 _this.removeListener(eventName, listener.method);
@@ -106,7 +118,7 @@ var EventEmitter = (function () {
                             });
                         },
                         function (args, cb) {
-                            var listenerAnno = _.merge(_.cloneDeep(listener.annotation), emitAnno);
+                            var listenerAnno = _.merge(_.cloneDeep(listener.annotation), emitAnno, eventMeta);
                             listener.method.apply(listener, args.concat([listenerAnno]));
                             _this.callPost('postListener', intercepts, interceptorAnno, args, function (e, postListenerResult) {
                                 if (!postListenerResult.stop) {

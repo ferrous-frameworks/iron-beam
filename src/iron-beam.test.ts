@@ -180,6 +180,16 @@ describe('iron-beam', () => {
         ib.emit('1#2#3#4#5#6#7#8#9');
     });
 
+    it("should work with wildcarded custom delimited event names", (done) => {
+        var ib = new IronBeam.EventEmitter({
+            delimiter: '#'
+        });
+        ib.on('1#*', () => {
+            done();
+        });
+        ib.emit('1#2');
+    });
+
     it("should work with a single wildcard event name", (done) => {
         var ib = new IronBeam.EventEmitter();
         ib.on('*', () => {

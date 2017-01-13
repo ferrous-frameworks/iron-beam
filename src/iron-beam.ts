@@ -98,8 +98,14 @@ export class EventEmitter implements IEventEmitter {
 
         this.annotation = {};
 
-        this.listenerTree = new IronTree.Tree<IListener>();
-        this.interceptorTree = new IronTree.Tree<IIntercept>();
+        this.listenerTree = new IronTree.Tree<IListener>({
+            delimiter: this.delimiter,
+            wildcard: this.wildcard
+        });
+        this.interceptorTree = new IronTree.Tree<IIntercept>({
+            delimiter: this.delimiter,
+            wildcard: this.wildcard
+        });
     }
 
     public setMaxListeners(max: number): EventEmitter {
@@ -162,7 +168,13 @@ export class EventEmitter implements IEventEmitter {
         var listeners = _.filter(allListeners, (listener) => {
             return listener.event !== this.wildcard || eventName !== 'newListener'
         });
-        var interceptorAnno = _.merge.apply(_, _.cloneDeep((<any>_).pluck(listeners, 'annotation')).concat([ emitAnno ]));
+        var eventMeta = {
+            eventMeta: {
+                name: eventName,
+                sections: eventName.split(this.delimiter)
+            }
+        };
+        var interceptorAnno = _.merge.apply(_, _.cloneDeep((<any>_).pluck(listeners, 'annotation')).concat([ emitAnno ]).concat([ eventMeta ]));
         _.each(listeners, (listener) => {
             if (listener.onlyOnce) {
                 this.removeListener(eventName, listener.method);
@@ -188,7 +200,7 @@ export class EventEmitter implements IEventEmitter {
                             });
                         },
                         (args, cb) => {
-                            var listenerAnno = _.merge(_.cloneDeep(listener.annotation), emitAnno);
+                            var listenerAnno = _.merge(_.cloneDeep(listener.annotation), emitAnno, eventMeta);
                             listener.method.apply(listener, args.concat([ listenerAnno ]));
                             this.callPost('postListener', intercepts, interceptorAnno, args, (e, postListenerResult) => {
                                 if (!postListenerResult.stop) {
