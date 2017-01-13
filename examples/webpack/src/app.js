@@ -1,10 +1,10 @@
 import { EventEmitter } from 'iron-beam';
 
-var ib = new EventEmitter();
+const ib = new EventEmitter();
 
 ib.on('a.*', (msg) => {
-    var h = document.createElement("h1")                // Create a <h1> element
-    var t = document.createTextNode(msg);
+    let h = document.createElement("h1");
+    let t = document.createTextNode(msg);
     h.appendChild(t);
     document.body.appendChild(h);
 });
