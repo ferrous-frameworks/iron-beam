@@ -2,7 +2,14 @@
 var _ = require("lodash");
 var async = require("async");
 var IronTree = require("iron-tree");
+/**
+ * This is the primary class in IronBeam.
+ * This class should be used as a replacement for events.EventEmitter in node
+ */
 var EventEmitter = (function () {
+    /**
+     * @param opts  Must pass in IIronBeamOptions.
+     */
     function EventEmitter(opts) {
         var defs = {
             defaultMaxListeners: 10,
@@ -27,10 +34,20 @@ var EventEmitter = (function () {
             wildcard: this.wildcard
         });
     }
+    /**
+    * ´setMaxListeners´ sets the current max listeners.
+    * @param max    ´max´ is a number of the max listeners before throwing warnings.
+    * @returns      Returns EventEmitter for chaining.
+    */
     EventEmitter.prototype.setMaxListeners = function (max) {
         this.maxListeners = max;
         return this;
     };
+    /**
+    * ´annotate´ allows an object to be set for any listener/emitter that will be available in any ´anno´ property.
+    * @param anno   ´anno´ is any object that needs to used by listeners/emitters/interceptors
+    * @returns      Returns EventEmitter for chaining.
+    */
     EventEmitter.prototype.annotate = function (anno) {
         this.annotation = _.cloneDeep(anno);
         return this;

@@ -4,12 +4,18 @@ import async = require('async');
 
 import IronTree = require('iron-tree');
 
+/**
+ * Type for IronBeam initialization options
+ */
 export interface IIronBeamOptions {
     defaultMaxListeners?: number;
     delimiter?: string;
     wildcard?: string;
 }
 
+/**
+ * Type for Listeners
+ */
 export interface IListener {
     event: string;
     annotation: any;
@@ -17,6 +23,9 @@ export interface IListener {
     onlyOnce: boolean;
 }
 
+/**
+ * Interface for PreIntercept lifecycle step
+ */
 export interface IPreIntercept {
     (
         stop: () => void,
@@ -26,6 +35,9 @@ export interface IPreIntercept {
     ): void;
 }
 
+/**
+ * Interface for PostIntercept lifecycle step
+ */
 export interface IPostIntercept {
     (
         stop: () => void,
@@ -35,6 +47,9 @@ export interface IPostIntercept {
     ): void;
 }
 
+/**
+ * Interface for IInterceptors
+ */
 export interface IInterceptors {
     preEmit?: IPreIntercept;
     preListener?: IPreIntercept;
@@ -42,11 +57,17 @@ export interface IInterceptors {
     postEmit?: IPostIntercept;
 }
 
+/**
+ * Interface for IIntercept
+ */
 interface IIntercept {
     event: string;
     interceptors: IInterceptors;
 }
 
+/**
+ * Interface for IEventEmitter
+ */
 export interface IEventEmitter {
     defaultMaxListeners: number;
 
@@ -70,6 +91,10 @@ export interface IEventEmitter {
     intercept(eventName: string, interceptors: IInterceptors): IEventEmitter;
 }
 
+/**
+ * This is the primary class in IronBeam.
+ * This class should be used as a replacement for events.EventEmitter in node
+ */
 export class EventEmitter implements IEventEmitter {
     private annotation: any;
     private maxListeners: number;
@@ -81,6 +106,9 @@ export class EventEmitter implements IEventEmitter {
 
     public defaultMaxListeners: number;
 
+    /**
+     * @param opts  Must pass in IIronBeamOptions.
+     */
     constructor(opts?: IIronBeamOptions) {
         var defs = {
             defaultMaxListeners: 10,
@@ -108,11 +136,21 @@ export class EventEmitter implements IEventEmitter {
         });
     }
 
+    /**
+    * ´setMaxListeners´ sets the current max listeners.
+    * @param max    ´max´ is a number of the max listeners before throwing warnings.
+    * @returns      Returns EventEmitter for chaining.
+    */
     public setMaxListeners(max: number): EventEmitter {
         this.maxListeners = max;
         return this;
     }
 
+    /**
+    * ´annotate´ allows an object to be set for any listener/emitter that will be available in any ´anno´ property.
+    * @param anno   ´anno´ is any object that needs to used by listeners/emitters/interceptors
+    * @returns      Returns EventEmitter for chaining.
+    */
     public annotate(anno: any): EventEmitter {
         this.annotation = _.cloneDeep(anno);
         return this;
