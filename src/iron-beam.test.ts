@@ -3,6 +3,7 @@ import chai = require('chai');
 var expect = chai.expect;
 
 import _ = require('lodash');
+import _async = require('async');
 
 import IronBeam = require('./iron-beam');
 
@@ -100,12 +101,30 @@ describe('iron-beam', () => {
         expect(ib.defaultMaxListeners).to.be.equal(10);
     });
 
+    it("should have a static 'defaultMaxListeners' property that returns 10", () => {
+        expect(IronBeam.EventEmitter.defaultMaxListeners).to.be.equal(10);
+    });
+
+    it("should have a '_maxListeners' property that returns undefined until set", () => {
+        var ib = new IronBeam.EventEmitter();
+        expect((<any>ib)._maxListeners).to.be.undefined;
+        ib.setMaxListeners(10);
+        expect((<any>ib)._maxListeners).to.be.equal(10);
+    });
+
+    //deprecated
+    it("should have a 'Domain' property that returns null", () => {
+        var ib = new IronBeam.EventEmitter();
+        expect(ib.Domain).to.be.null;
+    });
+
     it("should have a 'listeners' method that returns an array of listeners functions for the given event name", () => {
         var ib = new IronBeam.EventEmitter();
         ib.on('test', () => {}).on('test', () => {});
         expect(ib.listeners('test').length).to.be.equal(2);
     });
 
+    //deprecated
     it("should have a static 'listenerCount' method that returns the number of listeners for a given event name", () => {
         var ib = new IronBeam.EventEmitter();
         ib.on('test', () => {});
@@ -328,7 +347,7 @@ describe('iron-beam', () => {
         ib.emit('test');
     });
 
-    it("should provide a chainable annotation method so that listeners get listener annotations", (done) => {
+    it("should have a chainable annotation method so that listeners get listener annotations", (done) => {
         var ib = new IronBeam.EventEmitter();
         var test = {
             some: "data"
@@ -347,7 +366,7 @@ describe('iron-beam', () => {
         });
     });
 
-    it("should provide all listener's annotation objects to interceptors", (done) => {
+    it("should have all listener's annotation objects to interceptors", (done) => {
         var ib = new IronBeam.EventEmitter();
         var test = {
             some: "data"
@@ -448,7 +467,7 @@ describe('iron-beam', () => {
         ib.emit('test');
     });
 
-    it("should provide a chainable annotation method so that listeners get emit annotations", (done) => {
+    it("should have a chainable annotation method so that listeners get emit annotations", (done) => {
         var ib = new IronBeam.EventEmitter();
         var test = {
             some: "data"
@@ -467,7 +486,7 @@ describe('iron-beam', () => {
         });
     });
 
-    it("should provide a chainable annotation method so that listeners get listener and emitter annotations", (done) => {
+    it("should have a chainable annotation method so that listeners get listener and emitter annotations", (done) => {
         var ib = new IronBeam.EventEmitter();
         var test = {
             some: "data"
@@ -490,7 +509,7 @@ describe('iron-beam', () => {
         });
     });
 
-    it("should provide all listener's and emitter's annotation objects to interceptors", (done) => {
+    it("should have all listener's and emitter's annotation objects to interceptors", (done) => {
         var ib = new IronBeam.EventEmitter();
         var test = {
             some: "data"
@@ -541,7 +560,7 @@ describe('iron-beam', () => {
         });
     });
 
-    it("should provide the arguments to postEmit interceptors", (done) => {
+    it("should have the arguments to postEmit interceptors", (done) => {
         var ib = new IronBeam.EventEmitter();
         var test = {
             some: "data"
@@ -562,7 +581,7 @@ describe('iron-beam', () => {
         ib.emit('test', test);
     });
 
-    it("should provide the arguments to postEmit interceptors when there are no listeners", (done) => {
+    it("should have the arguments to postEmit interceptors when there are no listeners", (done) => {
         var ib = new IronBeam.EventEmitter();
         var test = {
             some: "data"
@@ -579,7 +598,7 @@ describe('iron-beam', () => {
         ib.emit('test', test);
     });
 
-    it("should provide 'annotatedListeners' method that returns an array of listeners for the given event name whose annotations match", (done) => {
+    it("should have an 'annotatedListeners' method that returns an array of listeners for the given event name whose annotations match", (done) => {
         var ib = new IronBeam.EventEmitter();
         ib.once('not-test', () => {});
         ib.annotate({
@@ -608,7 +627,7 @@ describe('iron-beam', () => {
         done();
     });
 
-    it("should provide 'allAnnotatedListeners' method that returns an array of listeners whose annotations match", (done) => {
+    it("should have an 'allAnnotatedListeners' method that returns an array of listeners whose annotations match", (done) => {
         var ib = new IronBeam.EventEmitter();
         ib.once('not-test', () => {});
         ib.annotate({
@@ -637,7 +656,7 @@ describe('iron-beam', () => {
         done();
     });
 
-    it("should provide 'removeAnnotatedListeners' method that removes any listeners for the given event name whose annotations match", (done) => {
+    it("should have an 'removeAnnotatedListeners' method that removes any listeners for the given event name whose annotations match", (done) => {
         var ib = new IronBeam.EventEmitter();
         ib.once('not-test', () => {});
         ib.annotate({
@@ -670,7 +689,7 @@ describe('iron-beam', () => {
         done();
     });
 
-    it("should provide 'removeAllAnnotatedListeners' method that removes any listeners whose annotations match", (done) => {
+    it("should have an 'removeAllAnnotatedListeners' method that removes any listeners whose annotations match", (done) => {
         var ib = new IronBeam.EventEmitter();
         ib.once('not-test', () => {});
         ib.annotate({
@@ -701,5 +720,39 @@ describe('iron-beam', () => {
         var anyAnno = ib.allAnnotatedListeners();
         expect(anyAnno.length).to.be.equal(0);
         done();
+    });
+    
+    it("should have an 'eventNames' method that returns all listeners names in an array", () => {
+        var ib = new IronBeam.EventEmitter();
+        ib.on('test', () => {});
+        ib.on('test.2', () => {});
+        ib.on('test.*', () => {});
+        var eventNames = ib.eventNames();
+        expect(eventNames).to.be.an('array');
+        expect(eventNames.length).to.be.equal(3);
+        expect(eventNames[0]).to.be.equal('test');
+        expect(eventNames[1]).to.be.equal('test.2');
+        expect(eventNames[2]).to.be.equal('test.*');
+    });
+    
+    it("should have an 'prependListener' method that puts a listener at the beginning of the call order", (done) => {
+        var ib = new IronBeam.EventEmitter();
+        ib.on('test', (cb) => {
+            cb(null, 1);
+        });
+        ib.on('test', (cb) => {
+            cb(null, 2);
+        });
+        ib.prependListener('test', (cb) => {
+            cb(null, 0);
+        });
+        _async.series(<any>ib.listeners('test'), (e, res) => {
+            expect(res).to.be.an('array');
+            expect(res.length).to.be.equal(3);
+            expect(res[0]).to.be.equal(0);
+            expect(res[1]).to.be.equal(1);
+            expect(res[2]).to.be.equal(2);
+            done();
+        });
     });
 });

@@ -2,6 +2,7 @@
 var _ = require("lodash");
 var async = require("async");
 var IronTree = require("iron-tree");
+var defaultMaxListeners = 10;
 /**
  * This is the primary class in IronBeam.
  * This class should be used as a replacement for events.EventEmitter in node
@@ -12,7 +13,7 @@ var EventEmitter = (function () {
      */
     function EventEmitter(opts) {
         var defs = {
-            defaultMaxListeners: 10,
+            defaultMaxListeners: defaultMaxListeners,
             delimiter: '.',
             wildcard: '*',
             globalWildcardMatch: false,
@@ -22,7 +23,6 @@ var EventEmitter = (function () {
             opts = {};
         }
         opts = _.merge(defs, opts);
-        this.maxListeners = opts.defaultMaxListeners;
         this.defaultMaxListeners = opts.defaultMaxListeners;
         this.wildcard = opts.wildcard;
         this.delimiter = opts.delimiter;
@@ -41,14 +41,18 @@ var EventEmitter = (function () {
             globalWildcardMatch: this.globalWildcardMatch,
             cascadingWildcardMatch: this.cascadingWildcardMatch
         });
+        this.Domain = null; //deprecated
     }
+    EventEmitter.prototype.getMaxListeners = function () {
+        return this._maxListeners == void 0 ? defaultMaxListeners : this._maxListeners;
+    };
     /**
     * ´setMaxListeners´ sets the current max listeners.
     * @param max    ´max´ is a number of the max listeners before throwing warnings.
     * @returns      Returns EventEmitter for chaining.
     */
     EventEmitter.prototype.setMaxListeners = function (max) {
-        this.maxListeners = max;
+        this._maxListeners = max;
         return this;
     };
     /**
@@ -65,6 +69,7 @@ var EventEmitter = (function () {
             event: eventName,
             method: method,
             annotation: _.cloneDeep(this.annotation),
+            prepend: false,
             onlyOnce: false
         }, method);
         return this;
@@ -72,26 +77,52 @@ var EventEmitter = (function () {
     EventEmitter.prototype.addListener = function (eventName, method) {
         return this.on(eventName, method);
     };
+    EventEmitter.prototype.prependListener = function (eventName, method) {
+        this.addNewListener({
+            event: eventName,
+            method: method,
+            annotation: _.cloneDeep(this.annotation),
+            prepend: true,
+            onlyOnce: false
+        }, method);
+        return this;
+    };
     EventEmitter.prototype.once = function (eventName, method) {
         this.addNewListener({
             event: eventName,
             method: method,
             annotation: _.cloneDeep(this.annotation),
+            prepend: false,
+            onlyOnce: true
+        }, method);
+        return this;
+    };
+    EventEmitter.prototype.prependOnceListener = function (eventName, method) {
+        this.addNewListener({
+            event: eventName,
+            method: method,
+            annotation: _.cloneDeep(this.annotation),
+            prepend: true,
             onlyOnce: true
         }, method);
         return this;
     };
     EventEmitter.prototype.addNewListener = function (listener, method) {
         this.annotation = {};
-        var count = EventEmitter.listenerCount(this, listener.event);
-        if (++count > this.maxListeners) {
+        var count = this.listenerCount(listener.event);
+        if (++count > this.getMaxListeners()) {
             this.emit('tooManyListeners', listener.event, count, listener);
             console.error('(iron-beam) warning: possible EventEmitter memory ' +
                 'leak detected. %d %s listeners added. ' +
                 'Use emitter.setMaxListeners() to increase limit.', count, listener.event);
             console.trace();
         }
-        this.listenerTree.add(listener.event, listener);
+        if (listener.prepend) {
+            this.listenerTree.prepend(listener.event, listener);
+        }
+        else {
+            this.listenerTree.add(listener.event, listener);
+        }
         this.emit('newListener', listener.event, method, listener);
         return this;
     };
@@ -175,6 +206,10 @@ var EventEmitter = (function () {
             }
         });
         return listeners.length > 0;
+    };
+    EventEmitter.prototype.eventNames = function () {
+        var listeners = this.allListeners();
+        return _.map(listeners, 'event');
     };
     EventEmitter.prototype.intercept = function (eventName, interceptors) {
         this.interceptorTree.add(eventName, {
@@ -299,6 +334,13 @@ var EventEmitter = (function () {
     EventEmitter.prototype.allInterceptors = function () {
         return this.interceptorTree.getAll();
     };
+    EventEmitter.prototype.listenerCount = function (eventName) {
+        return this.listeners(eventName).length;
+    };
+    EventEmitter.listenerCount = function (emitter, eventName) {
+        console.warn('Deprecated: Use emitter.listenerCount(eventName) instead');
+        return emitter.listeners(eventName).length;
+    };
     EventEmitter.prototype.dispose = function (callback) {
         this.listenerTree.remove();
         this.interceptorTree.remove();
@@ -308,10 +350,8 @@ var EventEmitter = (function () {
             });
         }
     };
-    EventEmitter.listenerCount = function (emitter, eventName) {
-        return emitter.listeners(eventName).length;
-    };
     return EventEmitter;
 }());
+EventEmitter.defaultMaxListeners = defaultMaxListeners;
 exports.EventEmitter = EventEmitter;
 //# sourceMappingURL=iron-beam.js.map

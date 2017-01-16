@@ -14,6 +14,7 @@ declare module "iron-beam" {
 	    event: string;
 	    annotation: any;
 	    method: Function;
+	    prepend: boolean;
 	    onlyOnce: boolean;
 	}
 
@@ -43,13 +44,19 @@ declare module "iron-beam" {
 
 	export interface IEventEmitter {
 	    defaultMaxListeners: number;
-
+	    Domain: any; //deprecated
+	    
+	    getMaxListeners(): number;
 	    setMaxListeners(max: number): IEventEmitter;
 	    annotate(anno: any): IEventEmitter;
 	    on(eventName: string, method: Function): IEventEmitter;
 	    addListener(eventName: string, method: Function): IEventEmitter;
+	    prependListener(eventName: string, method: Function): EventEmitter;
 	    once(eventName: string, method: Function): IEventEmitter;
+	    prependOnceListener(eventName: string, method: Function): EventEmitter;
 	    emit(eventName: string, ...args: any[]): boolean;
+	    eventNames(): string[];
+	    intercept(eventName: string, interceptors: IInterceptors): IEventEmitter;
 	    removeListener(eventName: string, method: Function): IEventEmitter;
 	    removeAnnotatedListeners(eventName: string, anno?: any): IEventEmitter;
 	    removeAllListeners(eventName?: string): IEventEmitter;
@@ -60,10 +67,8 @@ declare module "iron-beam" {
 	    allListeners(): IListener[];
 	    allAnnotatedListeners(anno?: any, eventName?: string): IListener[];
 	    allInterceptors(): IInterceptors[];
-
-	    intercept(eventName: string, interceptors: IInterceptors): IEventEmitter;
-
-	    dispose(cb?: () => void);
+	    listenerCount(eventName: string): number;
+	    dispose(callback?: () => void): void;
 	}
 
 	export class EventEmitter implements IEventEmitter {

@@ -22,6 +22,7 @@ export interface IListener {
     event: string;
     annotation: any;
     method: Function;
+    prepend: boolean;
     onlyOnce: boolean;
 }
 
@@ -72,13 +73,19 @@ interface IIntercept {
  */
 export interface IEventEmitter {
     defaultMaxListeners: number;
-
+    Domain: any; //deprecated
+    
+    getMaxListeners(): number;
     setMaxListeners(max: number): IEventEmitter;
     annotate(anno: any): IEventEmitter;
     on(eventName: string, method: Function): IEventEmitter;
     addListener(eventName: string, method: Function): IEventEmitter;
+    prependListener(eventName: string, method: Function): EventEmitter;
     once(eventName: string, method: Function): IEventEmitter;
+    prependOnceListener(eventName: string, method: Function): EventEmitter;
     emit(eventName: string, ...args: any[]): boolean;
+    eventNames(): string[];
+    intercept(eventName: string, interceptors: IInterceptors): IEventEmitter;
     removeListener(eventName: string, method: Function): IEventEmitter;
     removeAnnotatedListeners(eventName: string, anno?: any): IEventEmitter;
     removeAllListeners(eventName?: string): IEventEmitter;
@@ -89,9 +96,11 @@ export interface IEventEmitter {
     allListeners(): IListener[];
     allAnnotatedListeners(anno?: any, eventName?: string): IListener[];
     allInterceptors(): IInterceptors[];
-
-    intercept(eventName: string, interceptors: IInterceptors): IEventEmitter;
+    listenerCount(eventName: string): number;
+    dispose(callback?: () => void): void;
 }
+
+var defaultMaxListeners = 10;
 
 /**
  * This is the primary class in IronBeam.
@@ -99,7 +108,7 @@ export interface IEventEmitter {
  */
 export class EventEmitter implements IEventEmitter {
     private annotation: any;
-    private maxListeners: number;
+    private _maxListeners: number;
     private wildcard: string;
     private delimiter: string;
     private globalWildcardMatch: boolean;
@@ -107,15 +116,18 @@ export class EventEmitter implements IEventEmitter {
 
     private listenerTree: IronTree.Tree<IListener>;
     private interceptorTree: IronTree.Tree<IIntercept>;
-
+    
+    public Domain: any;
+    
     public defaultMaxListeners: number;
+    public static defaultMaxListeners: number = defaultMaxListeners;
 
     /**
      * @param opts  Must pass in IIronBeamOptions.
      */
     constructor(opts?: IIronBeamOptions) {
         var defs = {
-            defaultMaxListeners: 10,
+            defaultMaxListeners: defaultMaxListeners,
             delimiter: '.',
             wildcard: '*',
             globalWildcardMatch: false,
@@ -125,7 +137,6 @@ export class EventEmitter implements IEventEmitter {
             opts = {};
         }
         opts = _.merge(defs, opts);
-        this.maxListeners = opts.defaultMaxListeners;
         this.defaultMaxListeners = opts.defaultMaxListeners;
         this.wildcard = opts.wildcard;
         this.delimiter = opts.delimiter;
@@ -146,6 +157,12 @@ export class EventEmitter implements IEventEmitter {
             globalWildcardMatch: this.globalWildcardMatch,
             cascadingWildcardMatch: this.cascadingWildcardMatch
         });
+        
+        this.Domain = null; //deprecated
+    }
+    
+    public getMaxListeners(): number {
+        return this._maxListeners == void 0 ? defaultMaxListeners : this._maxListeners;
     }
 
     /**
@@ -154,7 +171,7 @@ export class EventEmitter implements IEventEmitter {
     * @returns      Returns EventEmitter for chaining.
     */
     public setMaxListeners(max: number): EventEmitter {
-        this.maxListeners = max;
+        this._maxListeners = max;
         return this;
     }
 
@@ -173,6 +190,7 @@ export class EventEmitter implements IEventEmitter {
             event: eventName,
             method: method,
             annotation: _.cloneDeep(this.annotation),
+            prepend: false,
             onlyOnce: false
         }, method);
         return this;
@@ -180,12 +198,33 @@ export class EventEmitter implements IEventEmitter {
     public addListener(eventName: string, method: Function): EventEmitter {
         return this.on(eventName, method);
     }
+    public prependListener(eventName: string, method: Function): EventEmitter {
+        this.addNewListener({
+            event: eventName,
+            method: method,
+            annotation: _.cloneDeep(this.annotation),
+            prepend: true,
+            onlyOnce: false
+        }, method);
+        return this;
+    }
 
     public once(eventName: string, method: Function): EventEmitter {
         this.addNewListener({
             event: eventName,
             method: method,
             annotation: _.cloneDeep(this.annotation),
+            prepend: false,
+            onlyOnce: true
+        }, method);
+        return this;
+    }
+    public prependOnceListener(eventName: string, method: Function): EventEmitter {
+        this.addNewListener({
+            event: eventName,
+            method: method,
+            annotation: _.cloneDeep(this.annotation),
+            prepend: true,
             onlyOnce: true
         }, method);
         return this;
@@ -193,8 +232,8 @@ export class EventEmitter implements IEventEmitter {
 
     private addNewListener(listener: IListener, method: Function) {
         this.annotation = {};
-        var count = EventEmitter.listenerCount(this, listener.event);
-        if (++count > this.maxListeners) {
+        var count = this.listenerCount(listener.event);
+        if (++count > this.getMaxListeners()) {
             this.emit('tooManyListeners', listener.event, count, listener);
             console.error('(iron-beam) warning: possible EventEmitter memory ' +
                 'leak detected. %d %s listeners added. ' +
@@ -202,7 +241,12 @@ export class EventEmitter implements IEventEmitter {
                 count, listener.event);
             console.trace();
         }
-        this.listenerTree.add(listener.event, listener);
+        if (listener.prepend) {
+            this.listenerTree.prepend(listener.event, listener);
+        }
+        else {
+            this.listenerTree.add(listener.event, listener);
+        }
         this.emit('newListener', listener.event, method, listener);
         return this;
     }
@@ -282,6 +326,11 @@ export class EventEmitter implements IEventEmitter {
             }
         });
         return listeners.length > 0;
+    }
+    
+    public eventNames(): string[] {
+        var listeners = this.allListeners();
+        return <string[]>_.map(listeners, 'event');
     }
 
     public intercept(eventName: string, interceptors: IInterceptors): IEventEmitter {
@@ -417,8 +466,16 @@ export class EventEmitter implements IEventEmitter {
     public allInterceptors(): IInterceptors[] {
         return this.interceptorTree.getAll();
     }
+    
+    public listenerCount(eventName: string): number {
+        return this.listeners(eventName).length;
+    }
+    public static listenerCount(emitter: EventEmitter, eventName: string): number {
+        console.warn('Deprecated: Use emitter.listenerCount(eventName) instead');
+        return emitter.listeners(eventName).length;
+    }
 
-    public dispose(callback?: () => void) {
+    public dispose(callback?: () => void): void {
         this.listenerTree.remove();
         this.interceptorTree.remove();
         if (!_.isUndefined(callback)) {
@@ -426,9 +483,5 @@ export class EventEmitter implements IEventEmitter {
                 callback();
             });
         }
-    }
-
-    public static listenerCount(emitter: EventEmitter, eventName: string): number {
-        return emitter.listeners(eventName).length;
     }
 }
