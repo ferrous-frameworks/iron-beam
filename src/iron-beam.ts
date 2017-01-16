@@ -11,6 +11,8 @@ export interface IIronBeamOptions {
     defaultMaxListeners?: number;
     delimiter?: string;
     wildcard?: string;
+    globalWildcardMatch?: boolean;
+    cascadingWildcardMatch?: boolean;
 }
 
 /**
@@ -100,6 +102,8 @@ export class EventEmitter implements IEventEmitter {
     private maxListeners: number;
     private wildcard: string;
     private delimiter: string;
+    private globalWildcardMatch: boolean;
+    private cascadingWildcardMatch: boolean;
 
     private listenerTree: IronTree.Tree<IListener>;
     private interceptorTree: IronTree.Tree<IIntercept>;
@@ -113,7 +117,9 @@ export class EventEmitter implements IEventEmitter {
         var defs = {
             defaultMaxListeners: 10,
             delimiter: '.',
-            wildcard: '*'
+            wildcard: '*',
+            globalWildcardMatch: false,
+            cascadingWildcardMatch: false
         };
         if (_.isUndefined(opts)) {
             opts = {};
@@ -123,16 +129,22 @@ export class EventEmitter implements IEventEmitter {
         this.defaultMaxListeners = opts.defaultMaxListeners;
         this.wildcard = opts.wildcard;
         this.delimiter = opts.delimiter;
+        this.cascadingWildcardMatch = opts.cascadingWildcardMatch;
+        this.globalWildcardMatch = opts.globalWildcardMatch;
 
         this.annotation = {};
 
         this.listenerTree = new IronTree.Tree<IListener>({
             delimiter: this.delimiter,
-            wildcard: this.wildcard
+            wildcard: this.wildcard,
+            globalWildcardMatch: this.globalWildcardMatch,
+            cascadingWildcardMatch: this.cascadingWildcardMatch
         });
         this.interceptorTree = new IronTree.Tree<IIntercept>({
             delimiter: this.delimiter,
-            wildcard: this.wildcard
+            wildcard: this.wildcard,
+            globalWildcardMatch: this.globalWildcardMatch,
+            cascadingWildcardMatch: this.cascadingWildcardMatch
         });
     }
 

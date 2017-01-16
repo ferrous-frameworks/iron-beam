@@ -6,6 +6,8 @@ declare module "iron-beam" {
 	    defaultMaxListeners?: number;
 	    delimiter?: string;
 	    wildcard?: string;
+        globalWildcardMatch?: boolean;
+        cascadingWildcardMatch?: boolean;
 	}
 
 	export interface IListener {

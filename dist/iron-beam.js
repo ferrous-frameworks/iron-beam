@@ -14,7 +14,9 @@ var EventEmitter = (function () {
         var defs = {
             defaultMaxListeners: 10,
             delimiter: '.',
-            wildcard: '*'
+            wildcard: '*',
+            globalWildcardMatch: false,
+            cascadingWildcardMatch: false
         };
         if (_.isUndefined(opts)) {
             opts = {};
@@ -24,14 +26,20 @@ var EventEmitter = (function () {
         this.defaultMaxListeners = opts.defaultMaxListeners;
         this.wildcard = opts.wildcard;
         this.delimiter = opts.delimiter;
+        this.cascadingWildcardMatch = opts.cascadingWildcardMatch;
+        this.globalWildcardMatch = opts.globalWildcardMatch;
         this.annotation = {};
         this.listenerTree = new IronTree.Tree({
             delimiter: this.delimiter,
-            wildcard: this.wildcard
+            wildcard: this.wildcard,
+            globalWildcardMatch: this.globalWildcardMatch,
+            cascadingWildcardMatch: this.cascadingWildcardMatch
         });
         this.interceptorTree = new IronTree.Tree({
             delimiter: this.delimiter,
-            wildcard: this.wildcard
+            wildcard: this.wildcard,
+            globalWildcardMatch: this.globalWildcardMatch,
+            cascadingWildcardMatch: this.cascadingWildcardMatch
         });
     }
     /**
