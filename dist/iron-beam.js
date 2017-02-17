@@ -1,15 +1,16 @@
 "use strict";
-var _ = require("lodash");
-var async = require("async");
-var IronTree = require("iron-tree");
+var _ = require('lodash');
+var async = require('async');
+var IronTree = require('iron-tree');
 var defaultMaxListeners = 10;
 /**
  * This is the primary class in IronBeam.
  * This class should be used as a replacement for events.EventEmitter in node
+ * Please see (https://nodejs.org/dist/latest-v6.x/docs/api/events.html#events_emitter_listeners_eventname) for the node EventEmitter API
  */
 var EventEmitter = (function () {
     /**
-     * @param opts  Must pass in IIronBeamOptions.
+     * @param opts optional IIronBeamOptions.
      */
     function EventEmitter(opts) {
         var defs = {
@@ -46,20 +47,15 @@ var EventEmitter = (function () {
     EventEmitter.prototype.getMaxListeners = function () {
         return this._maxListeners == void 0 ? defaultMaxListeners : this._maxListeners;
     };
-    /**
-    * ´setMaxListeners´ sets the current max listeners.
-    * @param max    ´max´ is a number of the max listeners before throwing warnings.
-    * @returns      Returns EventEmitter for chaining.
-    */
     EventEmitter.prototype.setMaxListeners = function (max) {
         this._maxListeners = max;
         return this;
     };
     /**
-    * ´annotate´ allows an object to be set for any listener/emitter that will be available in any ´anno´ property.
-    * @param anno   ´anno´ is any object that needs to used by listeners/emitters/interceptors
-    * @returns      Returns EventEmitter for chaining.
-    */
+     * ´annotate´ allows an object to be set for any listener/emitter that will be available in any ´anno´ property.
+     * @param anno ´anno´ is any object that needs to used by listeners/emitters/interceptors
+     * @returns Returns EventEmitter for chaining.
+     */
     EventEmitter.prototype.annotate = function (anno) {
         this.annotation = _.cloneDeep(anno);
         return this;
@@ -211,6 +207,12 @@ var EventEmitter = (function () {
         var listeners = this.allListeners();
         return _.map(listeners, 'event');
     };
+    /**
+     * ´intercept´ allows an object to be set for any listener/emitter that will be available in any ´anno´ property.
+     * @param eventName `eventName` the event name to intercept
+     * @param interceptors `interceptors` [comment]
+     * * @returns EventEmitter for chaining.
+     */
     EventEmitter.prototype.intercept = function (eventName, interceptors) {
         this.interceptorTree.add(eventName, {
             event: eventName,
@@ -285,6 +287,9 @@ var EventEmitter = (function () {
         }
         return this;
     };
+    /**
+     * `removeAnnotatedListeners` [comment]
+     */
     EventEmitter.prototype.removeAnnotatedListeners = function (eventName, anno) {
         return this.removeAllAnnotatedListeners(anno, eventName);
     };
@@ -298,6 +303,9 @@ var EventEmitter = (function () {
         });
         return this;
     };
+    /**
+     * `removeAllAnnotatedListeners` [comment]
+     */
     EventEmitter.prototype.removeAllAnnotatedListeners = function (anno, eventName) {
         var _this = this;
         var listeners = this.allAnnotatedListeners(anno, eventName);
@@ -310,15 +318,27 @@ var EventEmitter = (function () {
         var listeners = this.listenerTree.get(eventName);
         return _.pluck(listeners, 'method');
     };
+    /**
+     * `hasListener` [comment]
+     */
     EventEmitter.prototype.hasListener = function (eventName) {
         return this.listeners(eventName).length > 0;
     };
+    /**
+     * `annotatedListeners` [comment]
+     */
     EventEmitter.prototype.annotatedListeners = function (eventName, anno) {
         return this.allAnnotatedListeners(anno, eventName);
     };
+    /**
+     * `allListeners` [comment]
+     */
     EventEmitter.prototype.allListeners = function () {
         return this.listenerTree.getAll();
     };
+    /**
+     * `allAnnotatedListeners` [comment]
+     */
     EventEmitter.prototype.allAnnotatedListeners = function (anno, eventName) {
         var listeners = _.isUndefined(eventName) ? this.listenerTree.getAll() : this.listenerTree.get(eventName);
         return _.filter(listeners, function (l) {
@@ -331,16 +351,22 @@ var EventEmitter = (function () {
             });
         });
     };
+    /**
+     * `allInterceptors` [comment]
+     */
     EventEmitter.prototype.allInterceptors = function () {
         return this.interceptorTree.getAll();
-    };
-    EventEmitter.prototype.listenerCount = function (eventName) {
-        return this.listeners(eventName).length;
     };
     EventEmitter.listenerCount = function (emitter, eventName) {
         console.warn('Deprecated: Use emitter.listenerCount(eventName) instead');
         return emitter.listeners(eventName).length;
     };
+    EventEmitter.prototype.listenerCount = function (eventName) {
+        return this.listeners(eventName).length;
+    };
+    /**
+     * `dispose` [comment]
+     */
     EventEmitter.prototype.dispose = function (callback) {
         this.listenerTree.remove();
         this.interceptorTree.remove();
@@ -350,8 +376,8 @@ var EventEmitter = (function () {
             });
         }
     };
+    EventEmitter.defaultMaxListeners = defaultMaxListeners;
     return EventEmitter;
 }());
-EventEmitter.defaultMaxListeners = defaultMaxListeners;
 exports.EventEmitter = EventEmitter;
 //# sourceMappingURL=iron-beam.js.map

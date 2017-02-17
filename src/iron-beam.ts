@@ -105,6 +105,7 @@ var defaultMaxListeners = 10;
 /**
  * This is the primary class in IronBeam.
  * This class should be used as a replacement for events.EventEmitter in node
+ * Please see (https://nodejs.org/dist/latest-v6.x/docs/api/events.html#events_emitter_listeners_eventname) for the node EventEmitter API
  */
 export class EventEmitter implements IEventEmitter {
     private annotation: any;
@@ -123,7 +124,7 @@ export class EventEmitter implements IEventEmitter {
     public static defaultMaxListeners: number = defaultMaxListeners;
 
     /**
-     * @param opts  Must pass in IIronBeamOptions.
+     * @param opts optional IIronBeamOptions.
      */
     constructor(opts?: IIronBeamOptions) {
         var defs = {
@@ -165,21 +166,16 @@ export class EventEmitter implements IEventEmitter {
         return this._maxListeners == void 0 ? defaultMaxListeners : this._maxListeners;
     }
 
-    /**
-    * ´setMaxListeners´ sets the current max listeners.
-    * @param max    ´max´ is a number of the max listeners before throwing warnings.
-    * @returns      Returns EventEmitter for chaining.
-    */
     public setMaxListeners(max: number): EventEmitter {
         this._maxListeners = max;
         return this;
     }
 
     /**
-    * ´annotate´ allows an object to be set for any listener/emitter that will be available in any ´anno´ property.
-    * @param anno   ´anno´ is any object that needs to used by listeners/emitters/interceptors
-    * @returns      Returns EventEmitter for chaining.
-    */
+     * ´annotate´ allows an object to be set for any listener/emitter that will be available in any ´anno´ property.
+     * @param anno ´anno´ is any object that needs to used by listeners/emitters/interceptors
+     * @returns Returns EventEmitter for chaining.
+     */
     public annotate(anno: any): EventEmitter {
         this.annotation = _.cloneDeep(anno);
         return this;
@@ -333,6 +329,12 @@ export class EventEmitter implements IEventEmitter {
         return <string[]>_.map(listeners, 'event');
     }
 
+    /**
+     * ´intercept´ allows an object to be set for any listener/emitter that will be available in any ´anno´ property.
+     * @param eventName `eventName` the event name to intercept
+     * @param interceptors `interceptors` [comment]
+     * * @returns EventEmitter for chaining.
+     */
     public intercept(eventName: string, interceptors: IInterceptors): IEventEmitter {
         this.interceptorTree.add(eventName, {
             event: eventName,
@@ -409,6 +411,9 @@ export class EventEmitter implements IEventEmitter {
         return this;
     }
 
+    /**
+     * `removeAnnotatedListeners` [comment]
+     */
     public removeAnnotatedListeners(eventName: string, anno?: any): IEventEmitter {
         return this.removeAllAnnotatedListeners(anno, eventName);
     }
@@ -424,6 +429,9 @@ export class EventEmitter implements IEventEmitter {
         return this;
     }
 
+    /**
+     * `removeAllAnnotatedListeners` [comment]
+     */
     public removeAllAnnotatedListeners(anno?: any, eventName?: string): IEventEmitter {
         var listeners = this.allAnnotatedListeners(anno, eventName);
         _.each(listeners, (l: IListener) => {
@@ -437,18 +445,30 @@ export class EventEmitter implements IEventEmitter {
         return (<any>_).pluck(listeners, 'method');
     }
 
+    /**
+     * `hasListener` [comment]
+     */
     public hasListener(eventName: string): boolean {
         return this.listeners(eventName).length > 0;
     }
 
+    /**
+     * `annotatedListeners` [comment]
+     */
     public annotatedListeners(eventName: string, anno?: any): IListener[] {
         return this.allAnnotatedListeners(anno, eventName);
     }
 
+    /**
+     * `allListeners` [comment]
+     */
     public allListeners(): IListener[] {
         return this.listenerTree.getAll();
     }
 
+    /**
+     * `allAnnotatedListeners` [comment]
+     */
     public allAnnotatedListeners(anno?: any, eventName?: string): IListener[] {
         var listeners = _.isUndefined(eventName) ? this.listenerTree.getAll() : this.listenerTree.get(eventName);
         return _.filter(listeners, (l) => {
@@ -463,18 +483,24 @@ export class EventEmitter implements IEventEmitter {
         });
     }
 
+    /**
+     * `allInterceptors` [comment]
+     */
     public allInterceptors(): IInterceptors[] {
         return this.interceptorTree.getAll();
     }
     
-    public listenerCount(eventName: string): number {
-        return this.listeners(eventName).length;
-    }
     public static listenerCount(emitter: EventEmitter, eventName: string): number {
         console.warn('Deprecated: Use emitter.listenerCount(eventName) instead');
         return emitter.listeners(eventName).length;
     }
+    public listenerCount(eventName: string): number {
+        return this.listeners(eventName).length;
+    }
 
+    /**
+     * `dispose` [comment]
+     */
     public dispose(callback?: () => void): void {
         this.listenerTree.remove();
         this.interceptorTree.remove();
